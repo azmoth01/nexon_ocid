@@ -168,9 +168,9 @@ pre {
         결과 복사
       </button>
       <button
-        id="copyBtn1"
+        id="copyLinkBtn"
         class="copy-btn"
-        onclick="copyResult()"
+        onclick="copyLink()"
         style="display:non; width:48%;"
       >
         링크 복사
@@ -195,11 +195,13 @@ const resultBox = document.getElementById("result");
 const resultArea = document.getElementById("resultArea");
 const button = document.getElementById("searchBtn");
 const copyBtn = document.getElementById("copyBtn");
+const copyLinkBtn = document.getElementById("copyLinkBtn");
 const errorDetail = document.getElementById("errorDetail");
 const detailContent = document.getElementById("detailContent");
 
 let currentResult = "";
 let copyText = "";
+let copyLink = "";
 let lastErrorDetail = "";
 
 /* 라디오 변경 */
@@ -207,6 +209,7 @@ document.querySelectorAll("input[name='mode']").forEach(radio => {
   radio.addEventListener("change", () => {
     resultArea.style.display = "none";
     copyBtn.style.display = "none";
+    copyLinkBtn.style.display = "none";
     errorDetail.style.display = "none";
     detailContent.style.display = "none";
     input.value = "";
@@ -232,6 +235,7 @@ button.addEventListener("click", async () => {
 
   resultArea.style.display = "block";
   copyBtn.style.display = "none";
+  copyLinkBtnBtn.style.display = "none";
   errorDetail.style.display = "none";
   detailContent.style.display = "none";
 
@@ -265,6 +269,7 @@ ${JSON.stringify(data, null, 2)}`;
     if (mode === "ocid") {
       currentResult = `ocid:\n${data.ocid}`;
       copyText = `닉네임: ${value} | ocid: ${data.ocid}`;
+      copyLink = `https://nexon-ocid.vercel.app/?nick=${value}`;
     } else {
       currentResult =
 `닉네임: ${data.character_name}
@@ -273,10 +278,12 @@ ${JSON.stringify(data, null, 2)}`;
 레벨: ${data.character_level}
 길드: ${data.character_guild_name || "없음"}`;
       copyText = `닉네임: ${data.character_name} | 월드: ${data.world_name} | 직업: ${data.character_class} | 레벨: ${data.character_level} | 길드: ${data.character_guild_name || "없음"} | ocid: ${value}`
+      copyLink = `https://nexon-ocid.vercel.app/?ocid=${value}`;
     }
 
     resultBox.textContent = currentResult;
     copyBtn.style.display = "block";
+    copyLinkBtnBtn.style.display = "block";
 
   } catch (status) {
     resultBox.innerHTML =
@@ -284,6 +291,7 @@ ${JSON.stringify(data, null, 2)}`;
     errorDetail.style.display = "block";
     detailContent.textContent = lastErrorDetail;
     copyBtn.style.display = "none";
+    copyLinkBtnBtn.style.display = "none";
   } finally {
     button.disabled = false;
     button.textContent = "조회";
@@ -307,9 +315,18 @@ function toggleDetail() {
 function copyResult() {
   if (!currentResult) return;
   navigator.clipboard.writeText(copyText);
-  copyBtn.textContent = "복사 완료";
+  copyBtn.textContent = "결과 복사 완료";
   setTimeout(() => {
     copyBtn.textContent = "결과 복사";
+  }, 3000);
+}
+
+function copyLink() {
+  if (!currentLink) return;
+  navigator.clipboard.writeText(copyLink);
+  copyLinkBtn.textContent = "링크 복사 완료";
+  setTimeout(() => {
+    copyLinkBtn.textContent = "링크 복사";
   }, 3000);
 }
 
