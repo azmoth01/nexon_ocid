@@ -322,7 +322,7 @@ function copyResult() {
 }
 
 function copyLinkFunc() {
-  if (!currentLink) return;
+  if (!copyLink) return;
   navigator.clipboard.writeText(copyLink);
   copyLinkBtn.textContent = "링크 복사 완료";
   setTimeout(() => {
