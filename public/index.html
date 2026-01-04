@@ -283,7 +283,7 @@ ${JSON.stringify(data, null, 2)}`;
 
     resultBox.textContent = currentResult;
     copyBtn.style.display = "block";
-    copyLinkBtnBtn.style.display = "block";
+    copyLinkBtn.style.display = "block";
 
   } catch (status) {
     resultBox.innerHTML =
@@ -291,7 +291,7 @@ ${JSON.stringify(data, null, 2)}`;
     errorDetail.style.display = "block";
     detailContent.textContent = lastErrorDetail;
     copyBtn.style.display = "none";
-    copyLinkBtnBtn.style.display = "none";
+    copyLinkBtn.style.display = "none";
   } finally {
     button.disabled = false;
     button.textContent = "조회";
