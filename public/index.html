@@ -184,6 +184,7 @@ const errorDetail = document.getElementById("errorDetail");
 const detailContent = document.getElementById("detailContent");
 
 let currentResult = "";
+let copyText = "";
 let lastErrorDetail = "";
 
 /* 라디오 변경 */
@@ -248,6 +249,7 @@ ${JSON.stringify(data, null, 2)}`;
 
     if (mode === "ocid") {
       currentResult = `ocid:\n${data.ocid}`;
+      copyText = `닉네임: ${value} | ocid: ${data.ocid}`;
     } else {
       currentResult =
 `닉네임: ${data.character_name}
@@ -255,6 +257,7 @@ ${JSON.stringify(data, null, 2)}`;
 직업: ${data.character_class}
 레벨: ${data.character_level}
 길드: ${data.character_guild_name || "없음"}`;
+      copyText = `닉네임: ${data.character_name} | 월드: ${data.world_name} | 직업: ${data.character_class} | 레벨: ${data.character_level} | 길드: ${data.character_guild_name || "없음"} | ocid: ${value}`
     }
 
     resultBox.textContent = currentResult;
@@ -288,7 +291,7 @@ function toggleDetail() {
 /* 복사 */
 function copyResult() {
   if (!currentResult) return;
-  navigator.clipboard.writeText(currentResult);
+  navigator.clipboard.writeText(copyText);
   copyBtn.textContent = "복사 완료";
   setTimeout(() => {
     copyBtn.textContent = "결과 복사";
