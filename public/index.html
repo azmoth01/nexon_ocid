@@ -170,7 +170,7 @@ pre {
       <button
         id="copyLinkBtn"
         class="copy-btn"
-        onclick="copyLink()"
+        onclick="copyLinkFunc()"
         style="display:none; width:48%;"
       >
         링크 복사
@@ -321,7 +321,7 @@ function copyResult() {
   }, 3000);
 }
 
-function copyLink() {
+function copyLinkFunc() {
   if (!currentLink) return;
   navigator.clipboard.writeText(copyLink);
   copyLinkBtn.textContent = "링크 복사 완료";
