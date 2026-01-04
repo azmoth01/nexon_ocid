@@ -297,6 +297,37 @@ function copyResult() {
     copyBtn.textContent = "결과 복사";
   }, 3000);
 }
+
+/* --- URL 파라미터 자동 조회 --- */
+window.addEventListener("DOMContentLoaded", () => {
+  const params = new URLSearchParams(window.location.search);
+  const ocid = params.get("ocid");
+  const nick = params.get("nick");
+
+  if (ocid) {
+    // ocid → 캐릭터 정보
+    document.querySelector("input[value='character']").checked = true;
+    input.placeholder = "ocid 입력";
+    input.value = ocid;
+
+    // 약간의 딜레이 후 조회 (렌더 안정성)
+    setTimeout(() => {
+      button.click();
+    }, 100);
+  }
+
+  if (nick) {
+    // 닉네임 → ocid
+    document.querySelector("input[value='ocid']").checked = true;
+    input.placeholder = "캐릭터 이름 입력";
+    input.value = nick;
+
+    setTimeout(() => {
+      button.click();
+    }, 100);
+  }
+});
+
 </script>
 
 </body>
