@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <title>메이플 OCID 조회</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #0f172a;
+      color: #fff;
+      padding: 40px;
+    }
+    input, button {
+      padding: 10px;
+      width: 280px;
+      margin-top: 10px;
+    }
+    pre {
+      background: #020617;
+      padding: 15px;
+      margin-top: 20px;
+    }
+  </style>
+</head>
+<body>
+
+<h1>캐릭터 OCID 조회</h1>
+
+<input id="name" placeholder="캐릭터 이름 입력" />
+<br />
+<button onclick="getOcid()">조회</button>
+
+<pre id="result"></pre>
+
+<p style="margin-top:40px;font-size:12px;">
+  Data based on NEXON Open API
+</p>
+
+<script>
+  async function getOcid() {
+    const name = document.getElementById("name").value;
+    const result = document.getElementById("result");
+
+    result.textContent = "조회 중...";
+
+    try {
+      const res = await fetch(`/api/ocid?character_name=${encodeURIComponent(name)}`);
+      const data = await res.json();
+
+      if (!res.ok) {
+        result.textContent = JSON.stringify(data, null, 2);
+        return;
+      }
+
+      result.textContent = `OCID:\n${data.ocid}`;
+    } catch (err) {
+      result.textContent = "서버 요청 실패";
+    }
+  }
+</script>
+
+</body>
+</html>
