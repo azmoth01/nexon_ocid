@@ -1,15 +1,15 @@
 export default async function handler(req, res) {
-  const { character_name } = req.query;
+  const { ocid } = req.query;
 
-  if (!character_name) {
+  if (!ocid) {
     return res.status(400).json({
-      error: { name: "BadRequest", message: "캐릭터 이름을 입력해주세요." }
+      error: { name: "BadRequest", message: "OCID가 필요합니다." }
     });
   }
 
   try {
     const response = await fetch(
-      `https://open.api.nexon.com/maplestory/v1/id?character_name=${encodeURIComponent(character_name)}`,
+      `https://open.api.nexon.com/maplestory/v1/character/basic?ocid=${ocid}`,
       {
         headers: {
           "x-nxopen-api-key": process.env.NEXON_API_KEY
@@ -22,7 +22,7 @@ export default async function handler(req, res) {
 
   } catch {
     res.status(500).json({
-      error: { name: "ServerError", message: "서버 통신 중 오류가 발생했습니다." }
+      error: { name: "ServerError", message: "캐릭터 정보를 불러오지 못했습니다." }
     });
   }
 }

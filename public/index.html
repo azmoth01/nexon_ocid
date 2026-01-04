@@ -1,62 +1,110 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-  <meta charset="UTF-8" />
-  <title>메이플 OCID 조회</title>
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      background: #0f172a;
-      color: #fff;
-      padding: 40px;
-    }
-    input, button {
-      padding: 10px;
-      width: 280px;
-      margin-top: 10px;
-    }
-    pre {
-      background: #020617;
-      padding: 15px;
-      margin-top: 20px;
-    }
-  </style>
+<meta charset="UTF-8" />
+<title>메이플 OCID 조회</title>
+<style>
+body {
+  font-family: Arial, sans-serif;
+  background:#0f172a;
+  color:#fff;
+  padding:40px;
+}
+section { margin-bottom:40px; }
+input, button {
+  padding:10px;
+  width:300px;
+  margin-top:8px;
+}
+pre {
+  background:#020617;
+  padding:15px;
+  margin-top:15px;
+}
+img {
+  margin-top:15px;
+}
+.error { color:#f87171; }
+</style>
 </head>
 <body>
 
-<h1>캐릭터 OCID 조회</h1>
+<h1>메이플스토리 OCID 조회</h1>
 
-<input id="name" placeholder="캐릭터 이름 입력" />
-<br />
-<button onclick="getOcid()">조회</button>
+<section>
+  <h2>캐릭터 이름 → OCID</h2>
+  <input id="name" placeholder="캐릭터 이름" />
+  <br />
+  <button onclick="getOcid()">조회</button>
+  <pre id="ocidResult"></pre>
+</section>
 
-<pre id="result"></pre>
+<section>
+  <h2>OCID → 캐릭터 정보</h2>
+  <input id="ocid" placeholder="OCID" />
+  <br />
+  <button onclick="getCharacter()">조회</button>
+  <pre id="charResult"></pre>
+  <img id="charImage" />
+</section>
 
-<p style="margin-top:40px;font-size:12px;">
-  Data based on NEXON Open API
+<p style="font-size:12px;margin-top:50px;">
+  Data based on NEXON Open API<br/>
+  ※ API를 통해 크롤링한 데이터는 30일 이내 갱신해야 합니다.
 </p>
 
 <script>
-  async function getOcid() {
-    const name = document.getElementById("name").value;
-    const result = document.getElementById("result");
-
-    result.textContent = "조회 중...";
-
-    try {
-      const res = await fetch(`/api/ocid?character_name=${encodeURIComponent(name)}`);
-      const data = await res.json();
-
-      if (!res.ok) {
-        result.textContent = JSON.stringify(data, null, 2);
-        return;
-      }
-
-      result.textContent = `OCID:\n${data.ocid}`;
-    } catch (err) {
-      result.textContent = "서버 요청 실패";
-    }
+function errorMessage(status) {
+  switch (status) {
+    case 400: return "입력값이 올바르지 않습니다.";
+    case 403: return "API 키 권한이 없습니다.";
+    case 429: return "요청이 너무 많습니다. 잠시 후 다시 시도하세요.";
+    case 500: return "서버 오류가 발생했습니다.";
+    default: return "알 수 없는 오류";
   }
+}
+
+async function getOcid() {
+  const name = document.getElementById("name").value;
+  const box = document.getElementById("ocidResult");
+  box.textContent = "조회 중...";
+
+  const res = await fetch(`/api/ocid?character_name=${encodeURIComponent(name)}`);
+  const data = await res.json();
+
+  if (!res.ok) {
+    box.innerHTML = `<span class="error">${errorMessage(res.status)}</span>`;
+    return;
+  }
+
+  box.textContent = `OCID:\n${data.ocid}`;
+  document.getElementById("ocid").value = data.ocid;
+}
+
+async function getCharacter() {
+  const ocid = document.getElementById("ocid").value;
+  const box = document.getElementById("charResult");
+  const img = document.getElementById("charImage");
+  box.textContent = "조회 중...";
+  img.src = "";
+
+  const res = await fetch(`/api/character?ocid=${ocid}`);
+  const data = await res.json();
+
+  if (!res.ok) {
+    box.innerHTML = `<span class="error">${errorMessage(res.status)}</span>`;
+    return;
+  }
+
+  box.textContent =
+`닉네임: ${data.character_name}
+월드: ${data.world_name}
+직업: ${data.character_class}
+레벨: ${data.character_level}
+길드: ${data.character_guild_name || "없음"}`;
+
+  img.src = data.character_image;
+}
 </script>
 
 </body>
