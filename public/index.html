@@ -21,9 +21,6 @@ pre {
   padding:15px;
   margin-top:15px;
 }
-img {
-  margin-top:15px;
-}
 .error { color:#f87171; }
 </style>
 </head>
@@ -45,12 +42,11 @@ img {
   <br />
   <button onclick="getCharacter()">조회</button>
   <pre id="charResult"></pre>
-  <img id="charImage" />
 </section>
 
 <p style="font-size:12px;margin-top:50px;">
   Data based on NEXON Open API<br/>
-  ※ API를 통해 크롤링한 데이터는 30일 이내 갱신해야 합니다.
+  ChatGPT로 제작됨.
 </p>
 
 <script>
@@ -84,9 +80,7 @@ async function getOcid() {
 async function getCharacter() {
   const ocid = document.getElementById("ocid").value;
   const box = document.getElementById("charResult");
-  const img = document.getElementById("charImage");
   box.textContent = "조회 중...";
-  img.src = "";
 
   const res = await fetch(`/api/character?ocid=${ocid}`);
   const data = await res.json();
@@ -102,8 +96,6 @@ async function getCharacter() {
 직업: ${data.character_class}
 레벨: ${data.character_level}
 길드: ${data.character_guild_name || "없음"}`;
-
-  img.src = data.character_image;
 }
 </script>
 
