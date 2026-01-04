@@ -2,54 +2,114 @@
 <html lang="ko">
 <head>
 <meta charset="UTF-8" />
-<title>메이플 OCID 조회</title>
+<title>메이플스토리 ocid 조회</title>
+
 <style>
 body {
   font-family: Arial, sans-serif;
   background:#0f172a;
   color:#fff;
   padding:40px;
+  max-width:600px;
+  margin:auto;
 }
-section { margin-bottom:40px; }
-input, button {
-  padding:10px;
-  width:300px;
-  margin-top:8px;
-}
-pre {
+
+h1 { margin-bottom:20px; }
+
+.card {
   background:#020617;
-  padding:15px;
-  margin-top:15px;
+  padding:20px;
+  border-radius:10px;
+  margin-top:20px;
 }
-.error { color:#f87171; }
+
+label {
+  margin-right:15px;
+  cursor:pointer;
+}
+
+input[type="text"] {
+  padding:10px;
+  width:100%;
+  margin-top:10px;
+}
+
+button {
+  margin-top:12px;
+  padding:10px;
+  width:100%;
+  cursor:pointer;
+}
+
+pre {
+  white-space:pre-wrap;
+  word-break:break-all;
+}
+
+.copy-btn {
+  background:#1e293b;
+  margin-top:5px;
+}
+
+.error {
+  color:#f87171;
+}
+.small {
+  font-size:12px;
+  opacity:0.8;
+}
 </style>
 </head>
+
 <body>
 
-<h1>메이플스토리 OCID 조회</h1>
+<h1>메이플스토리 ocid 조회</h1>
 
-<section>
-  <h2>캐릭터 이름 → OCID</h2>
-  <input id="name" placeholder="캐릭터 이름" />
-  <br />
-  <button onclick="getOcid()">조회</button>
-  <pre id="ocidResult"></pre>
-</section>
+<div class="card">
+  <div>
+    <label>
+      <input type="radio" name="mode" value="ocid" checked />
+      캐릭터 이름 → ocid
+    </label>
+    <label>
+      <input type="radio" name="mode" value="character" />
+      ocid → 캐릭터 정보
+    </label>
+  </div>
 
-<section>
-  <h2>OCID → 캐릭터 정보</h2>
-  <input id="ocid" placeholder="OCID" />
-  <br />
-  <button onclick="getCharacter()">조회</button>
-  <pre id="charResult"></pre>
-</section>
+  <input id="input" placeholder="캐릭터 이름 입력" />
+  <button id="searchBtn">조회</button>
 
-<p style="font-size:12px;margin-top:50px;">
+  <div id="resultArea" style="display:none;">
+    <pre id="result"></pre>
+    <button class="copy-btn" onclick="copyResult()">결과 복사</button>
+  </div>
+</div>
+
+<p class="small" style="margin-top:40px;">
   Data based on NEXON Open API<br/>
   ChatGPT로 제작됨.
 </p>
 
 <script>
+const input = document.getElementById("input");
+const resultBox = document.getElementById("result");
+const resultArea = document.getElementById("resultArea");
+const button = document.getElementById("searchBtn");
+
+let currentResult = "";
+
+document.querySelectorAll("input[name='mode']").forEach(radio => {
+  radio.addEventListener("change", () => {
+    resultArea.style.display = "none";
+    input.value = "";
+    input.placeholder =
+      radio.value === "ocid"
+        ? "캐릭터 이름 입력"
+        : "ocid 입력";
+  });
+});
+
 function errorMessage(status) {
   switch (status) {
     case 400: return "입력값이 올바르지 않습니다.";
@@ -60,42 +120,60 @@ function errorMessage(status) {
   }
 }
 
-async function getOcid() {
-  const name = document.getElementById("name").value;
-  const box = document.getElementById("ocidResult");
-  box.textContent = "조회 중...";
+button.addEventListener("click", async () => {
+  const mode = document.querySelector("input[name='mode']:checked").value;
+  const value = input.value.trim();
 
-  const res = await fetch(`/api/ocid?character_name=${encodeURIComponent(name)}`);
-  const data = await res.json();
-
-  if (!res.ok) {
-    box.innerHTML = `<span class="error">${errorMessage(res.status)}</span>`;
+  if (!value) {
+    resultBox.innerHTML = `<span class="error">값을 입력해주세요.</span>`;
+    resultArea.style.display = "block";
     return;
   }
 
-  box.textContent = `OCID:\n${data.ocid}`;
-  document.getElementById("ocid").value = data.ocid;
-}
+  button.disabled = true;
+  button.textContent = "조회 중...";
+  resultArea.style.display = "block";
+  resultBox.textContent = "조회 중...";
 
-async function getCharacter() {
-  const ocid = document.getElementById("ocid").value;
-  const box = document.getElementById("charResult");
-  box.textContent = "조회 중...";
+  try {
+    let res, data;
 
-  const res = await fetch(`/api/character?ocid=${ocid}`);
-  const data = await res.json();
+    if (mode === "ocid") {
+      res = await fetch(`/api/ocid?character_name=${encodeURIComponent(value)}`);
+      data = await res.json();
 
-  if (!res.ok) {
-    box.innerHTML = `<span class="error">${errorMessage(res.status)}</span>`;
-    return;
-  }
+      if (!res.ok) throw res.status;
 
-  box.textContent =
+      currentResult = `ocid:\n${data.ocid}`;
+    } else {
+      res = await fetch(`/api/character?ocid=${value}`);
+      data = await res.json();
+
+      if (!res.ok) throw res.status;
+
+      currentResult =
 `닉네임: ${data.character_name}
 월드: ${data.world_name}
 직업: ${data.character_class}
 레벨: ${data.character_level}
 길드: ${data.character_guild_name || "없음"}`;
+    }
+
+    resultBox.textContent = currentResult;
+
+  } catch (status) {
+    resultBox.innerHTML =
+      `<span class="error">${errorMessage(status)}</span>`;
+  } finally {
+    button.disabled = false;
+    button.textContent = "조회";
+  }
+});
+
+function copyResult() {
+  if (!currentResult) return;
+  navigator.clipboard.writeText(currentResult);
+  alert("복사되었습니다!");
 }
 </script>
 
