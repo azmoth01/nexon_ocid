@@ -289,7 +289,10 @@ function toggleDetail() {
 function copyResult() {
   if (!currentResult) return;
   navigator.clipboard.writeText(currentResult);
-  alert("복사되었습니다!");
+  copyBtn.textContent = "복사 완료";
+  setTimeout(() => {
+    copyBtn.textContent = "결과 복사";
+  }, 3000);
 }
 </script>
 
